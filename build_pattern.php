@@ -15,8 +15,9 @@ $crawler = $client->request('GET', $url);
 $rows = $crawler->filter('table.ITAIJI tr');
 
 $patterns = array();
+$iso2022Patterns = array();
 
-$rows->each(function (Crawler $row) use (&$patterns) {
+$rows->each(function (Crawler $row) use (&$patterns, &$iso2022Patterns) {
 
 
     $cells = $row->filter('td');
@@ -32,8 +33,18 @@ $rows->each(function (Crawler $row) use (&$patterns) {
     foreach ($searchs as $search) {
         if ($search) {
             $patterns[$search] = $replace;
+            if (!isISO2022JPSafe($search)) {
+                $iso2022Patterns[$search] = $replace;
+            }
         }
     }
 });
 
+function isISO2022JPSafe($text)
+{
+    $iso2022 = mb_convert_encoding($text, 'ISO-2022-JP', 'UTF-8');
+    $utf8 = mb_convert_encoding($iso2022, 'UTF-8', 'ISO-2022-JP');
+    return $utf8 === $text;
+}
 file_put_contents(__DIR__.'/src/pattern.php', "<?php\nreturn " . var_export($patterns, true) . ";\n");
+file_put_contents(__DIR__.'/src/iso_2022_jp_pattern.php', "<?php\nreturn " . var_export($iso2022Patterns, true) . ";\n");

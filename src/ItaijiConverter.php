@@ -14,9 +14,9 @@ class ItaijiConverter
 {
     protected $pattern = array ();
 
-    public function __construct()
+    public function __construct($filename = 'pattern.php')
     {
-        $this->pattern = include __DIR__.'/pattern.php';
+        $this->pattern = include __DIR__.'/'.$filename;
     }
 
     /**
